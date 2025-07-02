@@ -4,7 +4,7 @@ const buyDataSubcriptioSchema = joi.object({
   network: joi.string().valid("MTN", "AIRTEL", "GLO", "9MOBILE").required().messages({
     "any.only": "Network must be one of MTN, AIRTEL, GLO, or 9MOBILE",
     "string.base": "Network must be a string",
-    "any.required": "Network is required"
+    "any.required": "Network is reaquired"
   }),
 
   phone: joi.string().pattern(/^(0|\+234)[789][01]\d{8}$/).required().messages({
