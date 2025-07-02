@@ -71,4 +71,4 @@ const buyAirtimeSubscription = async (req, res) => {
     }
 }
 
-export { buyDataSubcription }
+export { buyDataSubcription, buyAirtimeSubscription }
