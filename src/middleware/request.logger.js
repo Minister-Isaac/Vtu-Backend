@@ -1,4 +1,5 @@
 import logger from "../utils/logger.js"
+
 export const requestLogger = (req, res, next) => {
   const timestamps = new Date().toISOString()
   const method = req.method

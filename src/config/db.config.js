@@ -1,15 +1,17 @@
 import mongoose from "mongoose"
-import logger from "@/utils/logger"
+import logger from "../utils/logger.js"
 import retry from "async-retry"
+import dotenv from "dotenv"
+dotenv.config()
 
-const MONGO_URI = process.env.MONGO_URI
-if (!MONGO_URI) throw new Error("MONGO_URI missing in env")
+const MONGODB_URI = process.env.MONGODB_URI
+if (!MONGODB_URI) throw new Error("MONGODB_URI missing in env")
 
 export const connectToDb = async () => {
   try {
     await retry(
       async () => {
-        await mongoose.connect(MONGO_URI)
+        await mongoose.connect(MONGODB_URI)
         logger.info("Connected to MongoDB")
       },
       {

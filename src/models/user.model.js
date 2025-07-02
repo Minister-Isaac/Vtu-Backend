@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    last_login: {
+        type: Date,
+        default: null
+    },
     username: {
         type: String,
         required: true,
@@ -28,22 +32,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    adddress: {
+    address: {
         type: String,
         requried: true
-    },
-    referall_username: {
-        type: String,
     },
     password: {
         type: String,
         required: true,
         select: false
     }, 
-    wallet_balance: {
-        type: Number,
-        default: 0
-    },
     is_verified: {
         type: Boolean,
         default: false
@@ -72,6 +69,7 @@ userSchema.methods.comparePassword = async function (password) {
 }
 
 userSchema.index({ email: true })
+userSchema.index({ username: true })
 
 const User = mongoose.model("User", userSchema)
 

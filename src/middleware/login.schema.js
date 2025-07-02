@@ -1,35 +1,11 @@
 import joi from "joi"
 
-const NIGERIA_PHONE_REGEX = /^(0|\+234)[7-9][0-1]\d{8}$/
-
-const signUpValidationSchema = joi.object({
-  full_name: joi.string().min(3).max(50).required().messages({
-    "string.empty": "Full name is required",
-    "string.min": "Full name must be at least 3 characters",
-    "string.max": "Full name cannot exceed 50 characters"
-  }),
+const loginValidationSchema = joi.object({
   username: joi.string().min(4).max(15).alphanum().required().messages({
     "string.empty": "Username is required",
     "string.min": "Username must be at least 4 characters",
     "string.max": "Username cannot exceed 15 characters",
     "string.alphanum": "Username can only contain letters and numbers"
-  }),
-  address: joi.string().min(4).max(48).required().messages({
-    "string.empty": "Address is required",
-    "string.min": "Username must be at least 4 characters",
-    "string.max": "Address cannot exceed 48 characters"
-  }),
-  referral_username: joi.string().min(4).max(15).optional().messages({
-    "string.min": "Referral Username must be at least 4 characters",
-    "string.max": "Referral Username cannot exceed 48 characters"
-  }),
-  email: joi.string().email().required().messages({
-    "string.empty": "Email is required",
-    "string.email": "Email must be valid"
-  }),
-  phone: joi.string().pattern(NIGERIA_PHONE_REGEX).required().messages({
-    "string.empty": "Phone number is required",
-    "string.pattern.base": "Phone must be a valid Nigerian number (e.g., 08012345678)"
   }),
   password: joi.string().min(8).max(30).pattern(/[a-z]/, { name: "lowercase" }).pattern(/[0-9]/, { name: "number" }).required().messages({
       "string.empty": "Password is required",
@@ -39,7 +15,7 @@ const signUpValidationSchema = joi.object({
     })
 })
 
-const validateSignUpInput = (req, res, next) => {
+const validateLoginInput = (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     res.status(400).json({
       message: "Validation Error",
@@ -48,7 +24,7 @@ const validateSignUpInput = (req, res, next) => {
     return 
   }
 
-  const { error } = signUpValidationSchema.validate(req.body, {
+  const { error } = loginValidationSchema.validate(req.body, {
     abortEarly: false,
     allowUnknown: false,
     stripUnknown: true
@@ -68,4 +44,4 @@ const validateSignUpInput = (req, res, next) => {
   next()
 }
 
-export default validateSignUpInput
+export default validateLoginInput
