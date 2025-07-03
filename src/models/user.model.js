@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    account: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Account"
+    },
     last_login: {
         type: Date,
         default: null

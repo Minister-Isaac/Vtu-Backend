@@ -34,7 +34,9 @@ const registerUser = async (req, res) => {
       password
     })
 
-    await Account.create({ user: newUser._id })
+    const newAccount = await Account.create({ user: newUser._id })
+    newUser.account = newAccount._id
+    await newUser.save()
 
     if (referral_username && referral_username.trim().length > 0) {
       const referrerUser = await User.findOne({ username: referral_username.trim() })
@@ -67,7 +69,7 @@ const loginUser = async (req, res) => {
     }
 
     try{
-        const user = await User.findOne({ username}).select("+password")
+        const user = await User.findOne({ username}).select("+password").populate("account")
         if(!user) {
             logger.error("User not found", username)
             return res.status(404).json({ success: false, message: "User not found" })
@@ -106,6 +108,8 @@ const loginUser = async (req, res) => {
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000 
         })
+
+        const accountDetails = await Account.findOne({ })
 
         logger.debug("User logged in successfully:", username)
      return res.status(200).json({ success: true, message: "Login successful", user, accessToken })
