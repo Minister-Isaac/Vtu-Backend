@@ -1,49 +1,62 @@
 import logger from "../utils/logger.js"
 import User from "../models/user.model.js"
-//import Account from "../models/account.model.js"
+import Account from "../models/account.model.js"
 import RefreshToken from "../models/refresh.token.model.js"
 import { generateAccessToken, generateRefreshToken } from "../utils/generate.token.js"
 
 const registerUser = async (req, res) => {
-    logger.info("Registering new user endpoint hit!")
-    const { full_name, username, email, phone, address, referral_username, password } = req.body
-    if(!full_name || !username || !email || !phone || !address || !password) {
-        logger.error("All fields are required")
-        return res.status(422).json({ success: false, message: "All fields are required" })
+  logger.info("Registering new user endpoint hit!")
+  const { full_name, username, email, phone, address, referral_username, password } = req.body
+  if (!full_name || !username || !email || !phone || !address || !password) {
+    logger.error("All fields are required")
+    return res.status(422).json({ success: false, message: "All fields are required" })
+  }
+
+  try {
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      logger.warn("user already exists:", existingUser)
+      return res.status(409).json({ success: false, message: "User already exists" })
     }
 
-    try {
-        const existingUser = await User.findOne({ email })
-        if (existingUser){
-            logger.warn("user already exists:", existingUser)
-            return res.status(409).json({ success: false, message: "User already exists" })
-        }
-        const existingUsername = await User.findOne({ username })
-        if (existingUsername) {
-            return res.status(409).json({ success: false, message: "An existing account with this username is taken already" })
-        }
+    const existingUsername = await User.findOne({ username })
+    if (existingUsername) {
+      return res.status(409).json({ success: false, message: "An existing account with this username is taken already" })
+    }
 
-        const newUser = await User.create({
-            full_name,
-            username,
-            email,
-            phone,
-            address,
-            referral_username,
-            password    
-        })
-        
-        await Account.create({
-            user: newUser._id
-        })
-        
-        logger.debug("New user created")
-        return res.status(201).json({ success: true, message: "User registered successfully"})
-    } catch (error) {
+    const newUser = await User.create({
+      full_name,
+      username,
+      email,
+      phone,
+      address,
+      referral_username,
+      password
+    })
+
+    await Account.create({ user: newUser._id })
+
+    if (referral_username && referral_username.trim().length > 0) {
+      const referrerUser = await User.findOne({ username: referral_username.trim() })
+      if (referrerUser) {
+        const referrerAccount = await Account.findOne({ user: referrerUser._id })
+        if (referrerAccount) {
+          referrerAccount.total_referral += 1
+          referrerAccount.total_referral_bonus += 500
+          referrerAccount.wallet_balance += 500
+          await referrerAccount.save()
+        }
+      }
+    }
+
+    logger.debug("New user created")
+    return res.status(201).json({ success: true, message: "User registered successfully" })
+  } catch (error) {
     logger.error("Error registering user:", error)
-    return res.status(500).json({ success: false, message: "Internal server error"})
+    return res.status(500).json({ success: false, message: "Internal server error" })
   }
 }
+
 
 const loginUser = async (req, res) => {
     logger.info("Login user endpoint hit!")
@@ -66,6 +79,8 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid password" })
         }
         
+        await RefreshToken.deleteMany({ userId: user._id })
+
         const accessToken = generateAccessToken(user._id, user.username)
         const refreshToken = generateRefreshToken(user._id, user.username)
 
@@ -99,4 +114,18 @@ const loginUser = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error"})
     }
 }
-export { registerUser, loginUser}
+
+const logoutUser = async (req, res) => {
+    try{
+        await RefreshToken.deleteMany({ userId: req.user._id })
+        res.clearCookie("accessToken")
+        res.clearCookie("refreshToken")
+        logger.info("User logged out successfully")
+        return res.status(200).json({ success: true, message: "Logout successful" })
+    } catch(error){
+        logger.error("Failed to log out user:", error)
+        return res.status(500).json({ success: false, message: "Internal server error" })
+    }
+}
+
+export { registerUser, loginUser, logoutUser}
