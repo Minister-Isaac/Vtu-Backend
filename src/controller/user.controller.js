@@ -1,7 +1,10 @@
 import User from "../models/user.model.js"
 
 const getUserDetails = async (req, res) => {
-    const { userId } = req.params
+    const userId = req.user._id
+    if(!userId) {
+        return res.status(400).json({ message: "User ID is required" })
+    }
     try {
         const user = await User.findById(userId).populate("account")
         if (!user) {
