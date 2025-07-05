@@ -73,7 +73,7 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ username }).select("+password")
+    const user = await User.findOne({ username }).select("+password").populate("account")
     if (!user) {
       logger.error("User not found:", username);
       return res.status(404).json({ success: false, message: "User not found" });
@@ -121,7 +121,7 @@ const loginUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Login successful",
-     accessToken
+       accessToken
     });
   } catch (error) {
     logger.error("Failed to log in user:", error);
