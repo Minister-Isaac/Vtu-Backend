@@ -96,6 +96,11 @@ This API provides a set of RESTful endpoints to manage users and facilitate vari
     *   **URL**: `/api/v1/auth/logout`
     *   **Headers**: Requires `Authorization: Bearer <accessToken>` or `accessToken` cookie.
 
+*   **Get User Details**: Get user details, theres no need to save it to localstorage, just call this endpoint everytime u need ur data.
+    *   **Method**: `GET`
+    *   **URL**: `/api/v1/subscribe/me`
+    *   **Headers**: Requires `Authorization: Bearer <accessToken>` or `accessToken` cookie.
+
 ### Transaction Endpoints (Authenticated)
 
 All transaction endpoints require an authenticated user. Ensure you include the `accessToken` in the `Authorization` header (`Bearer <token>`) or as a cookie after logging in.

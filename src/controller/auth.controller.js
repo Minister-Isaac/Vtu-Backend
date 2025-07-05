@@ -73,7 +73,7 @@ const loginUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ username }).select("+password").populate("account");
+    const user = await User.findOne({ username }).select("+password")
     if (!user) {
       logger.error("User not found:", username);
       return res.status(404).json({ success: false, message: "User not found" });
@@ -116,26 +116,12 @@ const loginUser = async (req, res) => {
 
     logger.debug("User logged in successfully:", username);
 
-    // Return a clean user object
-    const safeUser = {
-      id: user._id,
-      full_name: user.full_name,
-      username: user.username,
-      email: user.email,
-      phone: user.phone,
-      address: user.address,
-      account: {
-        wallet_balance: user.account?.wallet_balance || 0,
-        total_referral: user.account?.total_referral || 0,
-        total_referral_bonus: user.account?.total_referral_bonus || 0,
-      },
-    };
+
 
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      user: safeUser,
-      accessToken,
+     accessToken
     });
   } catch (error) {
     logger.error("Failed to log in user:", error);
